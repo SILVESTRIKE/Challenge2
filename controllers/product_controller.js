@@ -1,4 +1,4 @@
-const Product = require('../models/Product');
+const Product = require('../models/product_model');
 
 exports.getAllProducts = async (req, res) => {
   const products = await Product.find();
@@ -25,7 +25,15 @@ exports.createProduct = async (req, res) => {
     res.status(400).send(err.message);
   }
 };
-
+exports.getBySlug = async (req, res) => {
+    try {
+        const product = await Product.findOne({ slug: req.params.slug });
+        if (!product) return res.status(404).json({ error: 'Not found' });
+        res.json(product);
+    } catch (err) {
+    res.status(400).send(err.message);
+  }
+};
 exports.updateProduct = async (req, res) => {
   try {
     const updated = await Product.findByIdAndUpdate(

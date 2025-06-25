@@ -8,6 +8,10 @@ app.use(express.json());
 
 app.use('/api/products', productRoutes);
 
+app.get('/', (req, res) => {
+  res.send('Chay duoc roi');
+});
+
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
