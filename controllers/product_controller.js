@@ -1,4 +1,5 @@
 const Product = require('../models/product_model');
+const now =new Date();
 
 exports.getAllProducts = async (req, res) => {
   const products = await Product.find();
@@ -18,7 +19,7 @@ exports.getProductById = async (req, res) => {
 exports.createProduct = async (req, res) => {
   try {
     const { name, quantity, slug } = req.body;
-    const newProduct = new Product({ name, quantity, slug });
+    const newProduct = new Product({ name, quantity, slug, create_at:now , update_at: now });
     await newProduct.save();
     res.status(201).json(newProduct);
   } catch (err) {
@@ -38,7 +39,10 @@ exports.updateProduct = async (req, res) => {
   try {
     const updated = await Product.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      { 
+        ...req.body,
+        update_at: now 
+      },
       { new: true }
     );
     if (!updated) return res.status(404).send('Product not found');
