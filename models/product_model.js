@@ -14,8 +14,8 @@ const productSchema = new mongoose.Schema({
         type: String,
         required: true,
         unique: true,
-    },
-    timestamps: true,
-    
+    },   
+}, {
+    timestamps: true
 });
 module.exports = mongoose.model('Product', productSchema);
