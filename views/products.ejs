@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Danh sách sản phẩm</title>
+</head>
+<body>
+    <h2>Danh sách sản phẩm</h2>
+    <a href="/account">Quản lý tài khoản</a>
+    <table border="1">
+        <tr>
+            <th>Tên</th>
+            <th>Số lượng</th>
+            <th>Slug</th>
+        </tr>
+        <% products.forEach(p => { %>
+        <tr>
+            <td><%= p.name %></td>
+            <td><%= p.quantity %></td>
+            <td><%= p.slug %></td>
+        </tr>
+        <% }) %>
+    </table>
+</body>
+</html>

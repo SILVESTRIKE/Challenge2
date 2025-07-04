@@ -1,23 +1,47 @@
-require('dotenv').config();
 const express = require('express');
-const mongoose = require('mongoose');
-const productRoutes = require('./routes/product_routes');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const session = require('express-session');
+const connectDB = require('./config/db');
+require('dotenv').config();
 
 const app = express();
+
+// Middleware
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'antoan',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: false }
+}));
 
-app.use('/api/products', productRoutes);
+// View engine
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
 
+// Routes
+const authRoutes = require('./routes/auth_routes');     // API
+const authViews = require('./routes/auth_views');       // WEB giao diện
+app.use('/api/users', authRoutes);
+app.use('/', authViews);
+
+// Home
 app.get('/', (req, res) => {
-  res.send('Chay duoc roi');
+  res.redirect('/login');
 });
 
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-}).then(() => {
-  console.log('MongoDB Connected');
-  app.listen(process.env.PORT, () => {
-    console.log(` Server running on port ${process.env.PORT}`);
-  });
-}).catch(err => console.log(' DB Connection Error:', err));
+// Start Server
+const startServer = async () => {
+  try {
+    await connectDB();
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  } catch (err) {
+    console.error('Failed to start server:', err);
+  }
+};
+
+startServer();
