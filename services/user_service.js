@@ -75,16 +75,15 @@ const userService = {
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) throw new Error('Sai mật khẩu');
 
-        if (!user.vertify) {
+        if (!user.verify) {
             await userService.sendOtp(user.email);
             throw new Error('Tài khoản chưa được xác thực. Vui lòng kiểm tra email để xác thực tài khoản của bạn.');
         }
 
-        const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-        return { user, token };
+        const accessToken = userService.createToken(user, process.env.JWT_SECRET, '15m');
+        const refreshToken = userService.createToken(user, process.env.JWT_REFRESH_SECRET, '7d');
+        return { user, accessToken, refreshToken };
     },
-
-    
 
     verifyOtp: async (email, otp) => {
         const user = await User.findOne({ email });
@@ -94,10 +93,13 @@ const userService = {
         if (!otpRecord) throw new Error('OTP không hợp lệ hoặc đã hết hạn');
 
         await Otp.deleteOne({ _id: otpRecord._id });
-        await User.findByIdAndUpdate(user._id, { verify: true });
+        await User.findByIdAndUpdate(user._id, { verify: true });// Cập nhật trạng thái xác thực của người dùng
 
         return true;
-    }
+    },
+    createToken: (user, secret, expiresIn) => {
+        return jwt.sign({ userId: user._id }, secret, { expiresIn });
+    },
 };
 
 module.exports = userService;

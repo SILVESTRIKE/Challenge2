@@ -12,13 +12,13 @@ const productController = {
   },
 
   getProductById: async (req, res) => {
-      try {
-        const product = await productService.getById(req.params.id);
-        if (!product) return res.status(404).send(err.message);
-        res.json(product);
-      } catch (err) {
-        res.status(400).send(err.message);
-      }
+    try {
+      const product = await productService.getById(req.params.id);
+      if (!product) return res.status(404).send(err.message);
+      res.json(product);
+    } catch (err) {
+      res.status(400).send(err.message);
+    }
   },
 
   createProduct: async (req, res) => {

@@ -3,5 +3,5 @@ WORKDIR /server
 COPY package*.json ./
 RUN npm install
 COPY . .
-CMD ["npx", "nodemon", "server.js"]
+CMD ["npm", "run", "dev"]
 EXPOSE 3000
