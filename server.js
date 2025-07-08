@@ -3,36 +3,36 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const connectDB = require('./config/db');
 const viewEngine = require('./config/viewengine');
-const setupSwaggerDocs = require('./swaggerConfig'); // Import
+const setupSwaggerDocs = require('./swaggerConfig');
+const methodOverride = require('method-override');
 
 require('dotenv').config();
 
 const app = express();
 
-// Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.use(methodOverride('_method'));
 
-// View engine
 viewEngine(app);
 
-// Routes
-const apiRoutes = require('./routes/api_routes');     // API
-const authViews = require('./routes/auth_views');       // WEB giao diện
-app.use('/api/', apiRoutes);
-app.use('/', authViews);
+const apiRoutes = require('./routes/api_routes');
+const webRoutes = require('./routes/web_routes');
 
-setupSwaggerDocs(app); // Gọi hàm để thiết lập route
+app.use('/api', apiRoutes);
 
-// Start Server
+app.use('/', webRoutes);
+
+setupSwaggerDocs(app);
+
 const startServer = async () => {
   try {
     await connectDB();
     const PORT = process.env.PORT || 3000;
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    app.listen(PORT, () => console.log(`Server đang chạy trên cổng ${PORT}`));
   } catch (err) {
-    console.error('Failed to start server:', err);
+    console.error('Không thể khởi động server:', err);
   }
 };
 

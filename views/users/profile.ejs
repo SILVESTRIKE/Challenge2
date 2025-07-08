@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= title %></title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-gray-100">
+    <nav class="bg-white shadow-md">
+      <div
+        class="container mx-auto px-6 py-3 flex justify-between items-center"
+      >
+        <a href="/homePage" class="text-xl font-bold text-gray-800">MyApp</a>
+        <div>
+          <a href="/products" class="text-gray-800 mx-2">Products</a>
+          <% if (user) { %>
+          <a href="/profile" class="text-indigo-600 font-bold mx-2">Profile</a>
+          <form action="/logout" method="POST" class="inline">
+            <button
+              type="submit"
+              class="bg-red-500 text-white px-3 py-1 rounded-md text-sm font-medium hover:bg-red-600 ml-2"
+            >
+              Logout
+            </button>
+          </form>
+          <% } else { %>
+          <a href="/login" class="text-gray-800 mx-2">Login</a>
+          <% } %>
+        </div>
+      </div>
+    </nav>
+
+    <main class="container mx-auto p-4 md:p-8">
+      <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <!-- Profile Header -->
+        <div class="p-6 border-b border-gray-200">
+          <h1 class="text-2xl font-bold text-gray-800">Thông tin tài khoản</h1>
+          <p class="text-gray-600 mt-1">Quản lý tài khoản và cài đặt.</p>
+        </div>
+
+        <!-- Profile Details Form -->
+        <form
+          action="/profile/<%= user._id %>?_method=PUT"
+          method="POST"
+          class="p-6"
+        >
+          <% if (locals.error) { %>
+          <div
+            class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6"
+            role="alert"
+          >
+            <p><%= error %></p>
+          </div>
+          <% } %>
+
+          <div class="space-y-6">
+            <div>
+              <label
+                for="username"
+                class="block text-sm font-medium text-gray-700"
+                >Username</label
+              >
+              <input
+                type="text"
+                name="username"
+                id="username"
+                value="<%= user.username %>"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+              />
+            </div>
+
+            <div>
+              <label for="email" class="block text-sm font-medium text-gray-700"
+                >Email</label
+              >
+              <input
+                type="email"
+                name="email"
+                id="email"
+                value="<%= user.email %>"
+                readonly
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm bg-gray-100 cursor-not-allowed sm:text-sm"
+              />
+              <p class="mt-2 text-xs text-gray-500">Email không thể đổi</p>
+            </div>
+          </div>
+
+          <div class="mt-8 flex justify-end">
+            <button
+              type="submit"
+              class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              Lưu thay đổi
+            </button>
+          </div>
+        </form>
+
+        <!-- Danger Zone for Deleting Account -->
+        <div class="bg-gray-50 px-6 py-5 border-t border-gray-200">
+          <div class="flex justify-between items-center">
+            <div>
+              <h3 class="text-lg font-medium text-red-600">Xóa tài khoản</h3>
+              <p class="mt-1 text-sm text-gray-500">Xóa là mất luôn á :?.</p>
+            </div>
+            <form
+              action="/profile/<%= user._id %>?_method=DELETE"
+              method="POST"
+              class="ml-4"
+            >
+              <button
+                type="submit"
+                onclick="return confirm('Are you absolutely sure you want to delete your account? This action cannot be undone.')"
+                class="bg-red-600 border border-transparent rounded-md shadow-sm py-2 px-4 inline-flex justify-center text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+              >
+                Xóa tài khoản của tôi
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>

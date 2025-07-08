@@ -14,7 +14,12 @@ const productSchema = new mongoose.Schema({
         type: String,
         required: true,
         unique: true,
-    },   
+    },
+    price: {
+        type: Number,
+        require: true,
+        min: 0
+    },
 }, {
     timestamps: true
 });

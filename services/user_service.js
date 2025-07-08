@@ -1,64 +1,47 @@
 const User = require('../models/user_model');
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
 const Otp = require('../models/otp');
 const { sendEmail } = require('../services/email');
 
 const userService = {
+    // --- Các hàm quản lý User ---
     getAll: async () => {
-        return await User.find();
+        return await User.find().select('-password');
     },
 
     getById: async (id) => {
-        const user = await User.findById(id);
+        const user = await User.findById(id).select('-password');
         if (!user) throw new Error('Không tìm thấy người dùng');
         return user;
     },
 
-    getByEmail: async (email) => {
-        const user = await User.findOne({ email });
+    getByEmail: async (email, selectPassword = false) => {
+        // Thêm option để có thể lấy cả password khi cần (chỉ dùng cho nội bộ service)
+        const query = User.findOne({ email });
+        const user = await (selectPassword ? query : query.select('-password'));
+
         if (!user) throw new Error('Không tìm thấy người dùng');
         return user;
-    },
-
-
-    sendOtp: async (email) => {
-        const user = await User.findOne({ email });
-        if (!user) throw new Error('Không tìm thấy người dùng');
-
-        const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
-        await new Otp({ userId: user._id, otp: otpCode }).save();
-        await sendEmail(user.email, otpCode);
-        return { message: 'OTP đã được gửi đến email của bạn' };
     },
 
     createUser: async ({ username, email, password }) => {
-        if (!username || !email || !password) {
-            throw new Error('Username, email, and password are required');
+        const existed = await User.findOne({ email });
+        if (existed) {
+            throw new Error('Email đã tồn tại.');
         }
-
         const hashedPassword = await bcrypt.hash(password, 10);
         const user = new User({ username, email, password: hashedPassword });
-        const result = await user.save();
-        if (result) await userService.sendOtp(user.email);
-        return;
+        await user.save();
+        await userService.sendOtp(user.email); // Gửi OTP sau khi tạo
+        return user;
     },
 
     updateUser: async (id, data) => {
-        const user = await User.findById(id);
-        if (!user) throw new Error('Không tìm thấy người dùng');
-
-        if (!data.username && !data.email && !data.password) {
-            throw new Error('Phải thay đổi tên, email hoặc mật khẩu');
-        }
-
         if (data.password) {
             data.password = await bcrypt.hash(data.password, 10);
         }
-
-        const updatedUser = await User.findByIdAndUpdate(id, data, { new: true });
-        if (!updatedUser) throw new Error('Không tìm thấy người dùng');
-
+        const updatedUser = await User.findByIdAndUpdate(id, data, { new: true, runValidators: true }).select('-password');
+        if (!updatedUser) throw new Error('Cập nhật thất bại, không tìm thấy người dùng.');
         return updatedUser;
     },
 
@@ -68,21 +51,17 @@ const userService = {
         return true;
     },
 
-    loginUser: async (email, password) => {
+    // --- Các hàm xử lý OTP ---
+    sendOtp: async (email) => {
         const user = await User.findOne({ email });
         if (!user) throw new Error('Không tìm thấy người dùng');
+        if (user.verify) throw new Error('Tài khoản này đã được xác thực rồi.');
 
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) throw new Error('Sai mật khẩu');
-
-        if (!user.verify) {
-            await userService.sendOtp(user.email);
-            throw new Error('Tài khoản chưa được xác thực. Vui lòng kiểm tra email để xác thực tài khoản của bạn.');
-        }
-
-        const accessToken = userService.createToken(user, process.env.JWT_SECRET, '15m');
-        const refreshToken = userService.createToken(user, process.env.JWT_REFRESH_SECRET, '7d');
-        return { user, accessToken, refreshToken };
+        const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+        await Otp.deleteMany({ userId: user._id }); // Xóa OTP cũ nếu có
+        await new Otp({ userId: user._id, otp: otpCode }).save();
+        await sendEmail(user.email, otpCode);
+        return { message: 'OTP đã được gửi đến email của bạn' };
     },
 
     verifyOtp: async (email, otp) => {
@@ -92,13 +71,9 @@ const userService = {
         const otpRecord = await Otp.findOne({ userId: user._id, otp: otp });
         if (!otpRecord) throw new Error('OTP không hợp lệ hoặc đã hết hạn');
 
+        await User.findByIdAndUpdate(user._id, { verify: true });
         await Otp.deleteOne({ _id: otpRecord._id });
-        await User.findByIdAndUpdate(user._id, { verify: true });// Cập nhật trạng thái xác thực của người dùng
-
         return true;
-    },
-    createToken: (user, secret, expiresIn) => {
-        return jwt.sign({ userId: user._id }, secret, { expiresIn });
     },
 };
 

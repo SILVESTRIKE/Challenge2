@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= title %></title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="w-full max-w-md bg-white p-8 rounded-lg shadow-lg">
+      <div class="text-center mb-8">
+        <h2 class="text-3xl font-bold text-gray-800">Verify Your Account</h2>
+        <p class="text-gray-500">
+          We've sent a 6-digit code to <strong><%= email %></strong>. Please
+          enter it below.
+        </p>
+      </div>
+
+      <% if (locals.error) { %>
+      <div
+        class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6"
+        role="alert"
+      >
+        <p><%= error %></p>
+      </div>
+      <% } %> <% if (locals.success) { %>
+      <div
+        class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6"
+        role="alert"
+      >
+        <p><%= success %></p>
+      </div>
+      <% } %>
+
+      <form action="/verify-otp" method="POST">
+        <input type="hidden" name="email" value="<%= email %>" />
+        <div class="mb-6">
+          <label for="otp" class="block text-gray-700 text-sm font-bold mb-2"
+            >Verification Code</label
+          >
+          <input
+            type="text"
+            name="otp"
+            id="otp"
+            required
+            maxlength="6"
+            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 text-center text-2xl tracking-[1rem] leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          />
+        </div>
+        <div class="flex items-center justify-between">
+          <button
+            type="submit"
+            class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+          >
+            Verify
+          </button>
+        </div>
+      </form>
+
+      <p class="text-center text-gray-500 text-sm mt-6">
+        Didn't receive the code?
+        <a
+          href="/send-otp"
+          class="font-bold text-indigo-600 hover:text-indigo-800"
+          >Resend OTP</a
+        >
+      </p>
+    </div>
+  </body>
+</html>

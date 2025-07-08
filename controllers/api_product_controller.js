@@ -1,6 +1,6 @@
 const productService = require('../services/product_service');
 
-const productController = {
+const apiProductController = {
   getAllProducts: async (req, res) => {
     try {
       const products = await productService.getAll();
@@ -57,4 +57,4 @@ const productController = {
     res.send('Deleted');
   },
 };
-module.exports = productController;
+module.exports = apiProductController;

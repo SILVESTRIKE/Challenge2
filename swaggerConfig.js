@@ -35,7 +35,13 @@ const options = {
 const swaggerSpec = swaggerJSDoc(options);
 
 function setupSwaggerDocs(app) {
-    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+        swaggerOptions: {
+            defaultModelsExpandDepth: -1,
+            defaultModelRendering: "example",
+            tryItOutEnabled: true // bật mặc định
+        }
+    }));
     console.log(`Swagger docs available at http://localhost:3000/api-docs`); // Thay port
 }
 

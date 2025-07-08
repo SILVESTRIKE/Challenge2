@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title><%= title %></title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+  </head>
+  <body>
+    <div class="container mt-5">
+      <h1><%= title %></h1>
+
+      <% if (error) { %>
+      <div class="alert alert-danger"><%= error %></div>
+      <% } %>
+
+      <form action="/product/createproduct" method="POST">
+        <div class="form-group">
+          <label for="name">Tên sản phẩm</label>
+          <input
+            type="text"
+            class="form-control"
+            id="name"
+            name="name"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="slug">Slug (URL thân thiện)</label>
+          <input
+            type="text"
+            class="form-control"
+            id="slug"
+            name="slug"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="quantity">Số lượng</label>
+          <input
+            type="number"
+            class="form-control"
+            id="quantity"
+            name="quantity"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="price">Giá</label>
+          <input type="number" class="form-control" id="price" name="price" />
+        </div>
+        <div class="form-group">
+          <label for="description">Mô tả</label>
+          <textarea
+            class="form-control"
+            id="description"
+            name="description"
+            rows="3"
+          ></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Tạo sản phẩm</button>
+        <a href="/products" class="btn btn-secondary">Hủy</a>
+      </form>
+    </div>
+  </body>
+</html>

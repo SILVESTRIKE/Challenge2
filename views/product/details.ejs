@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title><%= title %></title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+  </head>
+  <body>
+    <div class="container mt-5">
+      <div class="card">
+        <div class="card-header">
+          <h1><%= product.name %></h1>
+        </div>
+        <div class="card-body">
+          <h5 class="card-title">Slug: <%= product.slug %></h5>
+          <p class="card-text">
+            <strong>Số lượng:</strong> <%= product.quantity %>
+          </p>
+          <p class="card-text">
+            <strong>Mô tả:</strong> <%= product.description || 'Chưa có mô tả'
+            %>
+          </p>
+          <p class="card-text">
+            <strong>Giá:</strong> <%= product.price ?
+            product.price.toLocaleString('vi-VN') + ' VNĐ' : 'Chưa có giá' %>
+          </p>
+        </div>
+        <div class="card-footer">
+          <a href="/products" class="btn btn-secondary">Quay lại danh sách</a>
+          <a href="/product/edit/<%= product._id %>" class="btn btn-warning"
+            >Chỉnh sửa</a
+          >
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
