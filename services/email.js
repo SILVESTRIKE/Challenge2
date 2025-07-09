@@ -18,12 +18,12 @@ exports.sendEmail = async (to, otp) => {
     };
 
     try {
-        console.log('🔃 Gửi email từ:', process.env.EMAIL_USER);
+        console.log('Gửi email từ:', process.env.EMAIL_USER);
         await transporter.sendMail(mailOptions);
-        console.log('✅ Đã gửi mail đến:', to);
-        console.log('✅ otp:', otp);
+        console.log('Đã gửi mail đến:', to);
+        console.log('Otp:', otp);
     } catch (error) {
-        console.error('❌ Lỗi gửi mail:', error);
+        console.error('Lỗi gửi mail:', error);
         throw new Error('Không thể gửi email');
     }
 };

@@ -1,11 +1,9 @@
-// routes/api_routes.js
-
 const express = require('express');
 const router = express.Router();
 const apiUserController = require('../controllers/api_user_controller');
 const apiProductController = require('../controllers/api_product_controller');
 const apiAuthMiddleware = require('../middlewares/apiAuthMiddleware'); // Sử dụng middleware mới
-
+const adminMiddleware = require('../middlewares/adminMiddleware')
 /**
  * @swagger
  * tags:
@@ -318,7 +316,7 @@ router.get('/products', apiProductController.getAllProducts);
  *       400: { description: "Invalid input.", content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
  *       401: { description: "Unauthorized." }
  */
-router.post('/products', apiAuthMiddleware, apiProductController.createProduct);
+router.post('/products', apiAuthMiddleware, adminMiddleware('admin'), apiProductController.createProduct);
 
 /**
  * @swagger
@@ -362,7 +360,7 @@ router.get('/products/:id', apiProductController.getProductById);
  *       401: { description: "Unauthorized." }
  *       404: { description: "Product not found." }
  */
-router.put('/products/:id', apiAuthMiddleware, apiProductController.updateProduct);
+router.put('/products/:id', apiAuthMiddleware, adminMiddleware('admin'), apiProductController.updateProduct);
 
 /**
  * @swagger
@@ -382,6 +380,6 @@ router.put('/products/:id', apiAuthMiddleware, apiProductController.updateProduc
  *       401: { description: "Unauthorized." }
  *       404: { description: "Product not found." }
  */
-router.delete('/products/:id', apiAuthMiddleware, apiProductController.deleteProduct);
+router.delete('/products/:id', apiAuthMiddleware, adminMiddleware('admin'), apiProductController.deleteProduct);
 
 module.exports = router;

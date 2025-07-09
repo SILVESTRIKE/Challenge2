@@ -1,5 +1,3 @@
-// routes/web_routes.js
-
 const express = require('express');
 const router = express.Router();
 
@@ -9,7 +7,8 @@ const webUserController = require('../controllers/web_user_controller');
 const webProductController = require('../controllers/web_product_controller');
 
 // --- Import Middlewares đã được chuẩn hóa ---
-const authMiddleware = require('../middlewares/authMiddleware'); // Đổi tên file cho đúng
+const authMiddleware = require('../middlewares/authMiddleware');
+const adminMiddleware = require('../middlewares/adminMiddleware');
 const checkAuthStatus = require('../middlewares/checkAuthStatus');
 
 /**
@@ -21,7 +20,7 @@ router.get('/', (req, res) => {
     res.redirect('/homePage');
 });
 
-// SỬA Ở ĐÂY: Áp dụng checkAuthStatus cho trang chủ
+// checkAuthStatus cho trang chủ
 router.get('/homePage', checkAuthStatus, homeController.getHomePage);
 
 /**
@@ -34,8 +33,7 @@ router.get('/register', webUserController.getCreateUser);
 router.post('/register', webUserController.postCreateUser);
 router.get('/login', webUserController.getLoginUser);
 router.post('/login', webUserController.postLoginUser);
-router.post('/logout', webUserController.postLogout); // Đã sửa từ file cũ, dùng POST
-
+router.post('/logout', webUserController.postLogout);
 // Các route OTP
 router.get('/send-otp', webUserController.getSendOtp);
 router.post('/send-otp', webUserController.postSendOtp);
@@ -55,13 +53,12 @@ router.delete('/profile/:id', authMiddleware, webUserController.deleteUser);
 router.get('/products', checkAuthStatus, webProductController.getAllProducts);
 
 // Trang tạo sản phẩm (cần đăng nhập)
-router.get('/product/create', authMiddleware, webProductController.getCreateProductPage);
-router.post('/product/createproduct', authMiddleware, webProductController.createProduct);
+router.get('/product/create', authMiddleware, adminMiddleware('admin'), webProductController.getCreateProductPage);
 
-// SỬA Ở ĐÂY: Chỉnh lại các route cho nhất quán
-router.get('/product/edit/:id', authMiddleware, webProductController.getUpdateProductPage);
-router.put('/product/edit/:id', authMiddleware, webProductController.updateProduct);
-router.delete('/product/delete/:id', authMiddleware, webProductController.deleteProduct);
+router.post('/product/createproduct', authMiddleware, adminMiddleware('admin'), webProductController.createProduct);
+router.get('/product/edit/:id', authMiddleware, adminMiddleware('admin'), webProductController.getUpdateProductPage);
+router.put('/product/edit/:id', authMiddleware, adminMiddleware('admin'), webProductController.updateProduct);
+router.delete('/product/delete/:id', authMiddleware, adminMiddleware('admin'), webProductController.deleteProduct);
 
 // Trang chi tiết sản phẩm
 router.get('/product/details/:id', checkAuthStatus, webProductController.getProductById);
