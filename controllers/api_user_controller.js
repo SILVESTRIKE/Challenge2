@@ -2,17 +2,16 @@
 const userService = require('../services/user_service');
 const authService = require('../services/auth_service');
 
+const userMapper = require('../mappers/user_mapper');
 const apiUserController = {
 
     postCreateUser: async (req, res) => {
-        const { username, email, password } = req.body;
         try {
-
-            const newUser = await userService.createUser({ username, email, password });
-            const { password: _, ...userResponse } = newUser.toObject();
+            const newUser = await userService.createUser(req.body); // newUser là Mongoose Document            
+            const userResponseDTO = userMapper.toUserOutputDTO(newUser);
             res.status(201).json({
                 message: 'Tài khoản đã được tạo. OTP đã được gửi đến email của bạn để xác thực.',
-                user: userResponse
+                user: userResponseDTO
             });
         } catch (err) {
 
@@ -26,7 +25,7 @@ const apiUserController = {
         try {
 
             const { user, accessToken, refreshToken } = await authService.login(email, password);
-
+            const userResponseDTO = userMapper.toUserOutputDTO(user); // Map user Document sang DTO
             res.status(200).json({
                 message: 'Đăng nhập thành công!',
                 user,
@@ -40,9 +39,8 @@ const apiUserController = {
     },
 
     postSendOtp: async (req, res) => {
-        const { email } = req.body;
         try {
-            const result = await userService.sendOtp(email);
+            const result = await userService.sendOtp(req.body.email);
             res.status(200).json(result);
         } catch (err) {
             res.status(400).json({ message: err.message });
@@ -64,8 +62,8 @@ const apiUserController = {
     },
 
     getProfile: async (req, res) => {
-
-        res.status(200).json(req.user);
+        const userResponseDTO = userMapper.toUserOutputDTO(req.user); // Map req.user sang DTO
+        res.status(200).json(userResponseDTO);
     },
 
     updateUser: async (req, res) => {
@@ -73,7 +71,9 @@ const apiUserController = {
         try {
             const userId = req.user._id;
             const updatedUser = await userService.updateUser(userId, req.body);
-            res.status(200).json(updatedUser);
+            const updatedUserDTO = userMapper.toUserOutputDTO(updatedUser); // Map sang DTO
+
+            res.status(200).json(updatedUserDTO);
         } catch (err) {
             res.status(400).json({ message: err.message });
         }
@@ -94,7 +94,9 @@ const apiUserController = {
 
         try {
             const users = await userService.getAll();
-            res.status(200).json(users);
+            const userDTOs = userMapper.toListUserOutputDTO(users); // Map sang DTOs
+
+            res.status(200).json(userDTOs);
         } catch (err) {
             res.status(500).json({ message: err.message });
         }

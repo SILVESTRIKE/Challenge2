@@ -4,6 +4,12 @@ const apiUserController = require('../controllers/api_user_controller');
 const apiProductController = require('../controllers/api_product_controller');
 const apiAuthMiddleware = require('../middlewares/apiAuthMiddleware'); // Sử dụng middleware mới
 const adminMiddleware = require('../middlewares/adminMiddleware')
+const validateRequestMiddleware = require('../middlewares/validateRequestMiddleware')
+const UserValidator = require('../DTO/user_dto');
+const ProductValidator = require('../DTO/product_dto');
+const Joi = require('joi');
+const { login } = require('../services/auth_service');
+// Import DTO validators
 /**
  * @swagger
  * tags:
@@ -106,7 +112,7 @@ const adminMiddleware = require('../middlewares/adminMiddleware')
  *       400: { description: "Missing required fields.", content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
  *       409: { description: "Email already exists.", content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
  */
-router.post('/register', apiUserController.postCreateUser);
+router.post('/register', validateRequestMiddleware(UserValidator.userRegisterDTOSchema), apiUserController.postCreateUser);
 
 /**
  * @swagger
@@ -137,7 +143,7 @@ router.post('/register', apiUserController.postCreateUser);
  *                 user: { $ref: '#/components/schemas/UserResponse' }
  *       401: { description: "Invalid credentials or account not verified.", content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
  */
-router.post('/login', apiUserController.postLoginUser);
+router.post('/login', validateRequestMiddleware(UserValidator.loginDTOSchema), apiUserController.postLoginUser);
 
 /**
  * @swagger
@@ -171,7 +177,7 @@ router.post('/logout', apiAuthMiddleware, apiUserController.PostLogout);
  *       200: { description: "OTP sent successfully." }
  *       404: { description: "User not found.", content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
  */
-router.post('/send-otp', apiUserController.postSendOtp);
+router.post('/send-otp', validateRequestMiddleware(UserValidator.sendOtpDTOSchema), apiUserController.postSendOtp);
 
 /**
  * @swagger
@@ -193,7 +199,7 @@ router.post('/send-otp', apiUserController.postSendOtp);
  *       200: { description: "Account verified successfully." }
  *       400: { description: "Invalid OTP.", content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
  */
-router.post('/verify-otp', apiUserController.postVerifyOtp);
+router.post('/verify-otp', validateRequestMiddleware(UserValidator.verifyOtpDTOSchema), apiUserController.postVerifyOtp);
 
 
 // --- USER ROUTES ---
@@ -253,7 +259,7 @@ router.get('/users', apiAuthMiddleware, apiUserController.getAllUser);
  *       403: { description: "Forbidden." }
  *       404: { description: "User not found." }
  */
-router.put('/users/:id', apiAuthMiddleware, apiUserController.updateUser);
+router.put('/users/:id', apiAuthMiddleware, validateRequestMiddleware(UserValidator.updateUserDTOSchema), apiUserController.updateUser);
 
 /**
  * @swagger
@@ -316,7 +322,7 @@ router.get('/products', apiProductController.getAllProducts);
  *       400: { description: "Invalid input.", content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
  *       401: { description: "Unauthorized." }
  */
-router.post('/products', apiAuthMiddleware, adminMiddleware('admin'), apiProductController.createProduct);
+router.post('/products', apiAuthMiddleware, adminMiddleware('admin'), validateRequestMiddleware(ProductValidator.productDTOSchema), apiProductController.createProduct);
 
 /**
  * @swagger
@@ -360,7 +366,7 @@ router.get('/products/:id', apiProductController.getProductById);
  *       401: { description: "Unauthorized." }
  *       404: { description: "Product not found." }
  */
-router.put('/products/:id', apiAuthMiddleware, adminMiddleware('admin'), apiProductController.updateProduct);
+router.put('/products/:id', apiAuthMiddleware, adminMiddleware('admin'), validateRequestMiddleware(ProductValidator.productDTOSchema), apiProductController.updateProduct);
 
 /**
  * @swagger

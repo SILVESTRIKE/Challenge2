@@ -16,7 +16,7 @@ const productService = {
     },
 
     create: async (data) => {
-        if (!data.name || !data.quantity || !data.slug) {
+        if (!data.name || !data.quantity || !data.slug || !data.price) {
             throw new Error('Vui lòng điền đủ các trường name, quantity, slug');
         }
         const product = new Product(data);
